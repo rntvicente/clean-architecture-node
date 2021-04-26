@@ -4,7 +4,7 @@
   "description": "Estudo sobre clean architecture e outras boas praticas com NodeJS",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "prepare": "husky install"
   },
   "engines": {
