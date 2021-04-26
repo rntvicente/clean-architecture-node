@@ -15,12 +15,16 @@
     "Express",
     "MongoDB",
     "Design Partterns",
-    "Injection Dependence"
+    "Injection Dependence",
+    "TDD"
   ],
   "author": "Renato Vicente",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/rntvicente/clean-architecture-node/issues"
   },
-  "homepage": "https://github.com/rntvicente/clean-architecture-node#readme"
+  "homepage": "https://github.com/rntvicente/clean-architecture-node#readme",
+  "devDependencies": {
+    "standard": "^16.0.3"
+  }
 }
