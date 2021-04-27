@@ -2,6 +2,7 @@ const { assert } = require('chai')
 
 const LoginRouter = require('../../../src/presentation/routers/login-router')
 const MissingParamError = require('../../../src/presentation/helpers/missing-param-error')
+const UnauthorizedError = require('../../../src/presentation/helpers/unauthorized-error')
 
 const makeSut = () => {
   class AuthUseCaseSpy {
@@ -91,5 +92,6 @@ describe('Login Router', () => {
     const httpResponse = await sut.route(httpResquest)
 
     assert.strictEqual(httpResponse.statusCode, 401)
+    assert.deepInclude(httpResponse.body, new UnauthorizedError())
   })
 })
