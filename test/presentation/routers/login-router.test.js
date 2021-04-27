@@ -78,4 +78,18 @@ describe('Login Router', () => {
     assert.strictEqual(authUseCaseSpy.email, 'any_email@email.com')
     assert.strictEqual(authUseCaseSpy.password, 'any_password')
   })
+
+  it('should return 401 when invalid credentials are provided', async () => {
+    const { sut } = makeSut()
+    const httpResquest = {
+      body: {
+        email: 'invalid_email@email.com',
+        password: 'invalid_password'
+      }
+    }
+
+    const httpResponse = await sut.route(httpResquest)
+
+    assert.strictEqual(httpResponse.statusCode, 401)
+  })
 })
