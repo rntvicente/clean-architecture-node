@@ -1,7 +1,7 @@
 const { assert } = require('chai')
 
-const LoginRouter = require('../../src/presentation/routers/login-router')
-const MissingParamError = require('../../src/presentation/helpers/missing-param-error')
+const LoginRouter = require('../../../src/presentation/routers/login-router')
+const MissingParamError = require('../../../src/presentation/helpers/missing-param-error')
 
 describe('Login Router', () => {
   it('should return 400 when no email is provided', async () => {
