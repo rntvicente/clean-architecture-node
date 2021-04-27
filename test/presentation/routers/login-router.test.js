@@ -94,4 +94,32 @@ describe('Login Router', () => {
     assert.strictEqual(httpResponse.statusCode, 401)
     assert.deepInclude(httpResponse.body, new UnauthorizedError())
   })
+
+  it('should return 500 when no AuthUseCase is provided', async () => {
+    const sut = new LoginRouter({})
+
+    const httpResquest = {
+      body: {
+        email: 'any_email@email.com',
+        password: 'any_password'
+      }
+    }
+
+    const httpResponse = await sut.route(httpResquest)
+    assert.strictEqual(httpResponse.statusCode, 500)
+  })
+
+  it('should return 500 when AuthUseCase has no auth method', async () => {
+    const sut = new LoginRouter({})
+
+    const httpResquest = {
+      body: {
+        email: 'any_email@email.com',
+        password: 'any_password'
+      }
+    }
+
+    const httpResponse = await sut.route(httpResquest)
+    assert.strictEqual(httpResponse.statusCode, 500)
+  })
 })
