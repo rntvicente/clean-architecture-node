@@ -1,44 +1,7 @@
 const { assert } = require('chai')
 
-class LoginRouter {
-  async route (httpRequest) {
-    if (!httpRequest || !httpRequest.body) {
-      return HttpResponse.serverError()
-    }
-
-    const { body: { emai, password } } = httpRequest
-
-    if (!emai) {
-      return HttpResponse.badRequest('email')
-    }
-
-    if (!password) {
-      return HttpResponse.badRequest('password')
-    }
-  }
-}
-
-class HttpResponse {
-  static badRequest (paramName) {
-    return {
-      statusCode: 400,
-      body: new MissingParamError(paramName)
-    }
-  }
-
-  static serverError () {
-    return {
-      statusCode: 500
-    }
-  }
-}
-
-class MissingParamError extends Error {
-  constructor (paramName) {
-    super(`Missing param: ${paramName}`)
-    this.name = 'MissingParamError'
-  }
-}
+const LoginRouter = require('../../src/presentation/routers/login-router')
+const MissingParamError = require('../../src/presentation/helpers/missing-param-error')
 
 describe('Login Router', () => {
   it('should return 400 when no email is provided', async () => {
