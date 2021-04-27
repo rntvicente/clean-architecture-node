@@ -2,7 +2,9 @@ const { assert } = require('chai')
 
 class LoginRouter {
   async route (httpRequest) {
-    if (!httpRequest.body.emai || !httpRequest.body.password) {
+    const { body: { emai, password } } = httpRequest
+
+    if (!emai || !password) {
       return {
         statusCode: 400
       }
