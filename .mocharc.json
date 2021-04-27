@@ -1,9 +1,12 @@
 {
   "diff": true,
+  "color": true,
+  "parallel": false,
   "extension": ["js"],
   "package": "./package.json",
   "reporter": "spec",
-  "slow": "75",
+  "exit": true,
+  "recursive": true,
   "timeout": "2000",
   "ui": "bdd",
   "watch-files": ["src/**/*.js", "test/**/*.js"],
