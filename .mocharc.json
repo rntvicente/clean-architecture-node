@@ -1,9 +1,7 @@
 {
-  "diff": true,
-  "color": true,
   "parallel": false,
+  "bail": true,
   "extension": ["js"],
-  "package": "./package.json",
   "reporter": "spec",
   "exit": true,
   "recursive": true,
