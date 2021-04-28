@@ -1,4 +1,8 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+<<<<<<< HEAD
 npm run test:ci
+=======
+npm test:ci
+>>>>>>> 2867e6229524f32a2232b4e9e69cfb4da7d078fa
