@@ -4,9 +4,8 @@
   "description": "Estudo sobre clean architecture e outras boas praticas com NodeJS",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --watch --colors",
-    "test:staged": "mocha --reporter min $(git diff --name-only | grep test.js)",
-    "test:ci": "mocha"
+    "test": "mocha --colors",
+    "test:staged": "npm test -- --reporter min $(git diff --name-only | grep test.js)"
   },
   "standard": {
     "env": [
