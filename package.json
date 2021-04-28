@@ -4,9 +4,9 @@
   "description": "Estudo sobre clean architecture e outras boas praticas com NodeJS",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "test:staged": "mocha $(git diff --name-only | grep test.js)",
-    "prepare": "husky install"
+    "test": "mocha --watch --colors",
+    "test:staged": "mocha --reporter min $(git diff --name-only | grep test.js)",
+    "test:ci": "mocha"
   },
   "standard": {
     "env": [
@@ -27,7 +27,9 @@
     "MongoDB",
     "Design Partterns",
     "Injection Dependence",
-    "TDD"
+    "TDD",
+    "Mocha",
+    "Chai"
   ],
   "author": "Renato Vicente",
   "license": "ISC",
