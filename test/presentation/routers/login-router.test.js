@@ -2,18 +2,34 @@ const { assert } = require('chai')
 
 const LoginRouter = require('../../../src/presentation/routers/login-router')
 const MissingParamError = require('../../../src/presentation/helpers/missing-param-error')
+const InvalidParamError = require('../../../src/presentation/helpers/invalid-param-error')
 const UnauthorizedError = require('../../../src/presentation/helpers/unauthorized-error')
 const ServerError = require('../../../src/presentation/helpers/server-error')
 
 const makeSut = () => {
   const authUseCaseSpy = makeAuthUseCase()
-  authUseCaseSpy.accessToken = 'valid_token'
-  const sut = new LoginRouter(authUseCaseSpy)
+  const emailValidateSpy = makeEmailValidator()
+
+  const sut = new LoginRouter(authUseCaseSpy, emailValidateSpy)
 
   return {
     authUseCaseSpy,
+    emailValidateSpy,
     sut
   }
+}
+
+const makeEmailValidator = () => {
+  class EmailValidator {
+    isValid (email) {
+      return this.isEmailValid
+    }
+  }
+
+  const emailValidator = new EmailValidator()
+  emailValidator.isEmailValid = true
+
+  return emailValidator
 }
 
 const makeAuthUseCase = () => {
@@ -25,7 +41,10 @@ const makeAuthUseCase = () => {
     }
   }
 
-  return new AuthUseCase()
+  const authUseCase = new AuthUseCase()
+  authUseCase.accessToken = 'valid_token'
+
+  return authUseCase
 }
 
 const makeAuthUseCaseWithError = () => {
@@ -51,6 +70,24 @@ describe('Login Router', () => {
 
     assert.strictEqual(httpResponse.statusCode, 400)
     assert.deepInclude(httpResponse.body, new MissingParamError('email'))
+  })
+
+  it('should return 400 when no email invalid', async () => {
+    const { sut, emailValidateSpy } = makeSut()
+
+    emailValidateSpy.isEmailValid = false
+
+    const httpResquest = {
+      body: {
+        password: 'any_password',
+        email: 'invalid_email@email.com'
+      }
+    }
+
+    const httpResponse = await sut.route(httpResquest)
+
+    assert.strictEqual(httpResponse.statusCode, 400)
+    assert.deepInclude(httpResponse.body, new InvalidParamError('email'))
   })
 
   it('should return 400 when no password is provided', async () => {
@@ -148,6 +185,38 @@ describe('Login Router', () => {
   it('should return 500 when AuthUseCase throws', async () => {
     const authUseCaseWithError = makeAuthUseCaseWithError()
     const sut = new LoginRouter(authUseCaseWithError)
+
+    const httpResquest = {
+      body: {
+        email: 'any_email@email.com',
+        password: 'any_password'
+      }
+    }
+
+    const httpResponse = await sut.route(httpResquest)
+    assert.strictEqual(httpResponse.statusCode, 500)
+    assert.deepInclude(httpResponse.body, new ServerError())
+  })
+
+  it('should return 500 when EmailValidator is provided', async () => {
+    const authUseCaseSpy = makeAuthUseCase()
+    const sut = new LoginRouter(authUseCaseSpy)
+
+    const httpResquest = {
+      body: {
+        email: 'any_email@email.com',
+        password: 'any_password'
+      }
+    }
+
+    const httpResponse = await sut.route(httpResquest)
+    assert.strictEqual(httpResponse.statusCode, 500)
+    assert.deepInclude(httpResponse.body, new ServerError())
+  })
+
+  it('should return 500 when EmailValidator has no isValid method', async () => {
+    const authUseCaseSpy = makeAuthUseCase()
+    const sut = new LoginRouter(authUseCaseSpy, {})
 
     const httpResquest = {
       body: {
