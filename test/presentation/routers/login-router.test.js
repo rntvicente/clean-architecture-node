@@ -22,6 +22,7 @@ const makeSut = () => {
 const makeEmailValidator = () => {
   class EmailValidator {
     isValid (email) {
+      this.email = email
       return this.isEmailValid
     }
   }
@@ -258,6 +259,20 @@ describe('Login Router', () => {
     const httpResponse = await sut.route(httpResquest)
     assert.strictEqual(httpResponse.statusCode, 500)
     assert.deepInclude(httpResponse.body, new ServerError())
+  })
+
+  it('should call EmailValidator with correct email', async () => {
+    const { sut, emailValidateSpy } = makeSut()
+    const httpResquest = {
+      body: {
+        email: 'any_email@email.com',
+        password: 'any_password'
+      }
+    }
+
+    await sut.route(httpResquest)
+
+    assert.strictEqual(emailValidateSpy.email, 'any_email@email.com')
   })
 
   it('should return 200 when valid credentials are provided', async () => {
