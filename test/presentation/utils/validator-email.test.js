@@ -10,9 +10,13 @@ class EmailValidator {
 
 const sandbox = sinon.createSandbox()
 
+const makeSut = () => {
+  return new EmailValidator()
+}
+
 describe('Email Validator', () => {
   it('Should return true when validator returns true', () => {
-    const sut = new EmailValidator()
+    const sut = makeSut()
 
     const isEmailValid = sut.isValid('valid_email@email.com')
 
@@ -21,7 +25,7 @@ describe('Email Validator', () => {
 
   it('Should return false when validator returns false', () => {
     sandbox.stub(validator, 'isEmail').returns(false)
-    const sut = new EmailValidator()
+    const sut = makeSut()
 
     const isEmailValid = sut.isValid('invalid_email@email.com')
 
