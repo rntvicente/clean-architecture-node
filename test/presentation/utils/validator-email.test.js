@@ -15,6 +15,8 @@ const makeSut = () => {
 }
 
 describe('Email Validator', () => {
+  afterEach(() => sandbox.restore())
+
   it('Should return true when validator returns true', () => {
     const sut = makeSut()
 
@@ -30,5 +32,13 @@ describe('Email Validator', () => {
     const isEmailValid = sut.isValid('invalid_email@email.com')
 
     assert.isFalse(isEmailValid)
+  })
+
+  it('Should call validator with correct email', () => {
+    const sut = makeSut()
+    const isEmailSpy = sandbox.spy(validator, 'isEmail')
+
+    sut.isValid('any_email@email.com')
+    assert.isTrue(isEmailSpy.calledOnceWith('any_email@email.com'))
   })
 })
