@@ -1,20 +1,16 @@
 const { assert } = require('chai')
-const validator = require('validator')
 const sinon = require('sinon')
+const validator = require('validator')
 
-class EmailValidator {
-  isValid (email) {
-    return validator.isEmail(email)
-  }
-}
-
-const sandbox = sinon.createSandbox()
+const EmailValidator = require('../../../src/utils/email-validator')
 
 const makeSut = () => {
   return new EmailValidator()
 }
 
 describe('Email Validator', () => {
+  const sandbox = sinon.createSandbox()
+
   afterEach(() => sandbox.restore())
 
   it('Should return true when validator returns true', () => {
