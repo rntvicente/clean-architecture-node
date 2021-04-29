@@ -4,8 +4,7 @@
   "description": "Estudo sobre clean architecture e outras boas praticas com NodeJS",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --colors",
-    "test:staged": "npm test -- --reporter min $(git diff --name-only | grep test.js)"
+    "test": "mocha --colors"
   },
   "standard": {
     "env": [
@@ -41,6 +40,10 @@
     "husky": "^6.0.0",
     "lint-staged": "^10.5.4",
     "mocha": "^8.3.2",
+    "sinon": "^10.0.0",
     "standard": "^16.0.3"
+  },
+  "dependencies": {
+    "validator": "^13.6.0"
   }
 }
