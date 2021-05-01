@@ -37,4 +37,9 @@ describe('Email Validator', () => {
     sut.isValid('any_email@email.com')
     assert.isTrue(isEmailSpy.calledOnceWith('any_email@email.com'))
   })
+
+  it('should throw when no email is provided', () => {
+    const sut = makeSut()
+    assert.throw(sut.isValid)
+  })
 })
