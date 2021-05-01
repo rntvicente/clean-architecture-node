@@ -5,7 +5,22 @@ chai.use(chaiAsPromised)
 
 const AuthUseCase = require('../../../src/domain/usescases/auth-usecase')
 
-const makeSut = () => {
+const makeEncrypter = () => {
+  class Encrypter {
+    async compare (password, hashedPassword) {
+      this.password = password
+      this.hashedPassword = hashedPassword
+      return this.isValid
+    }
+  }
+
+  const encrypter = new Encrypter()
+  encrypter.isValid = true
+
+  return encrypter
+}
+
+const makeLoadUserbyEmailRepository = () => {
   class LoadUserByEmailRepository {
     async load (email) {
       this.email = email
@@ -14,13 +29,40 @@ const makeSut = () => {
   }
 
   const loadUserByEmailRepository = new LoadUserByEmailRepository()
-  loadUserByEmailRepository.user = {}
+  loadUserByEmailRepository.user = {
+    id: 'any_id',
+    password: 'hashed_password'
+  }
 
-  const sut = new AuthUseCase(loadUserByEmailRepository)
+  return loadUserByEmailRepository
+}
+
+const makeTokenGenerator = () => {
+  class TokenGenerator {
+    async generate (userId) {
+      this.userId = userId
+      return this.accessToken
+    }
+  }
+
+  const tokenGenerator = new TokenGenerator()
+  tokenGenerator.accessToken = 'any_token'
+
+  return tokenGenerator
+}
+
+const makeSut = () => {
+  const loadUserByEmailRepositorySpy = makeLoadUserbyEmailRepository()
+  const encrypterSpy = makeEncrypter()
+  const tokenGeneratorSpy = makeTokenGenerator()
+
+  const sut = new AuthUseCase(loadUserByEmailRepositorySpy, encrypterSpy, tokenGeneratorSpy)
 
   return {
     sut,
-    loadUserByEmailRepository
+    loadUserByEmailRepositorySpy,
+    encrypterSpy,
+    tokenGeneratorSpy
   }
 }
 
@@ -40,11 +82,11 @@ describe('Auth Usecase', () => {
   })
 
   it('should call LoadUserByEmailRepository with email correct', async () => {
-    const { sut, loadUserByEmailRepository } = makeSut()
-    const loadUserByEmailRepositorySpy = sandbox.spy(loadUserByEmailRepository, 'load')
+    const { sut, loadUserByEmailRepositorySpy } = makeSut()
+    const spy = sandbox.spy(loadUserByEmailRepositorySpy, 'load')
 
     sut.auth('any_email@email.com', 'any_password')
-    chai.assert.isTrue(loadUserByEmailRepositorySpy.calledOnceWith('any_email@email.com'))
+    chai.assert.isTrue(spy.calledOnceWith('any_email@email.com'))
   })
 
   it('should throw when no LoadUserByEmailRepository provided', async () => {
@@ -58,17 +100,43 @@ describe('Auth Usecase', () => {
   })
 
   it('should null when an invalid email is provided', async () => {
-    const { sut, loadUserByEmailRepository } = makeSut()
-    loadUserByEmailRepository.user = null
+    const { sut, loadUserByEmailRepositorySpy } = makeSut()
+    loadUserByEmailRepositorySpy.user = null
 
     const accessToken = await sut.auth('invalid_email@email.com', 'any_password')
     chai.assert.isNull(accessToken)
   })
 
   it('should null when an invalid password is provided', async () => {
-    const { sut } = makeSut()
+    const { sut, encrypterSpy } = makeSut()
+    encrypterSpy.isValid = false
 
     const accessToken = await sut.auth('valid_email@email.com', 'invalid_password')
     chai.assert.isNull(accessToken)
+  })
+
+  it('should call Encrypter with correct values', async () => {
+    const { sut, loadUserByEmailRepositorySpy, encrypterSpy } = makeSut()
+
+    await sut.auth('valid_email@email.com', 'any_password')
+
+    chai.assert.deepEqual(encrypterSpy.password, 'any_password')
+    chai.assert.deepEqual(encrypterSpy.hashedPassword, loadUserByEmailRepositorySpy.user.password)
+  })
+
+  it('should call TokenGenerator with correct UserId', async () => {
+    const { sut, loadUserByEmailRepositorySpy, tokenGeneratorSpy } = makeSut()
+
+    await sut.auth('valid_email@email.com', 'valid_password')
+    chai.assert.deepEqual(tokenGeneratorSpy.userId, loadUserByEmailRepositorySpy.user.id)
+  })
+
+  it('should return an accessToken when correct credentials are provided', async () => {
+    const { sut, tokenGeneratorSpy } = makeSut()
+
+    const accessToken = await sut.auth('valid_email@email.com', 'valid_password')
+
+    chai.assert.isOk(accessToken)
+    chai.assert.deepEqual(accessToken, tokenGeneratorSpy.accessToken)
   })
 })
