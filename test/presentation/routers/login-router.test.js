@@ -1,12 +1,8 @@
 const { assert } = require('chai')
 
 const LoginRouter = require('../../../src/presentation/routers/login-router')
-const {
-  MissingParamError,
-  InvalidParamError,
-  UnauthorizedError,
-  ServerError
-} = require('../../../src/presentation/errors')
+const { UnauthorizedError, ServerError } = require('../../../src/presentation/errors')
+const { MissingParamError, InvalidParamError } = require('../../../src/utils/errors')
 
 const makeSut = () => {
   const authUseCaseSpy = makeAuthUseCase()
