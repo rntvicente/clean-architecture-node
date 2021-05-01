@@ -56,7 +56,11 @@ const makeSut = () => {
   const encrypterSpy = makeEncrypter()
   const tokenGeneratorSpy = makeTokenGenerator()
 
-  const sut = new AuthUseCase(loadUserByEmailRepositorySpy, encrypterSpy, tokenGeneratorSpy)
+  const sut = new AuthUseCase({
+    loadUserByEmailRepository: loadUserByEmailRepositorySpy,
+    encrypter: encrypterSpy,
+    tokenGenerator: tokenGeneratorSpy
+  })
 
   return {
     sut,
@@ -90,12 +94,12 @@ describe('Auth Usecase', () => {
   })
 
   it('should throw when no LoadUserByEmailRepository provided', async () => {
-    const sut = new AuthUseCase()
+    const sut = new AuthUseCase({})
     chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
   })
 
   it('should throw when LoadUserByEmailRepository has no load method', async () => {
-    const sut = new AuthUseCase({})
+    const sut = new AuthUseCase({ loadUserByEmailRepository: {} })
     chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
   })
 
