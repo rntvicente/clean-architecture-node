@@ -4,7 +4,13 @@
   "description": "Estudo sobre clean architecture e outras boas praticas com NodeJS",
   "main": "index.js",
   "scripts": {
-    "test": "nyc mocha --colors"
+    "depcheck": "depcheck --ignores=husky,lint-staged",
+    "check": "standard",
+    "coverage": "nyc report",
+    "mocha": "mocha",
+    "pretest": "npm run check && npm run depcheck && npm audit --production --audit-level=moderate",
+    "test": "mocha",
+    "test:ci": "nyc --reporter=lcov mocha && npm run coverage"
   },
   "standard": {
     "env": [
@@ -38,6 +44,7 @@
   "devDependencies": {
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "depcheck": "^1.4.0",
     "husky": "^6.0.0",
     "lint-staged": "^10.5.4",
     "mocha": "^8.3.2",

@@ -1,18 +1,16 @@
 const bcrypt = require('bcrypt')
 const sinon = require('sinon')
-const { assert } = require('chai')
-class Encrypter {
-  async compare (value, hash) {
-    const isValid = await bcrypt.compare(value, hash)
-    return isValid
-  }
-}
+const chaiAsPromised = require('chai-as-promised')
+const chai = require('chai')
+
+const Encrypter = require('../../src/utils/helpers/encrypter')
 
 const makeSut = () => {
   return new Encrypter()
 }
 
 const sandbox = sinon.createSandbox()
+chai.use(chaiAsPromised)
 
 describe('Encrypter', () => {
   afterEach(() => sandbox.restore())
@@ -22,14 +20,14 @@ describe('Encrypter', () => {
     sandbox.stub(bcrypt, 'compare').returns(true)
     const isValid = await sut.compare('any_value', 'hashed_value')
 
-    assert.strictEqual(isValid, true)
+    chai.assert.strictEqual(isValid, true)
   })
 
   it('should return false when bcrypt return false', async () => {
     const sut = makeSut()
     const isValid = await sut.compare('any_value', 'hashed_value')
 
-    assert.strictEqual(isValid, false)
+    chai.assert.strictEqual(isValid, false)
   })
 
   it('should call bcrypt with correct values', async () => {
@@ -37,6 +35,12 @@ describe('Encrypter', () => {
     const sut = makeSut()
     await sut.compare('any_value', 'hashed_value')
 
-    assert.isTrue(compareSpy.calledOnceWith('any_value', 'hashed_value'))
+    chai.assert.isTrue(compareSpy.calledOnceWith('any_value', 'hashed_value'))
+  })
+
+  it('should throw when no params are provided', async () => {
+    const sut = makeSut()
+    chai.assert.isRejected(sut.compare())
+    chai.assert.isRejected(sut.compare('any_value'))
   })
 })

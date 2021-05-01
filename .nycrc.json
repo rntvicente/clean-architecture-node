@@ -1,6 +1,18 @@
 {
-  "branches": "&gt;80",
-  "lines": "&gt;80",
-  "functions": "&gt;80",
-  "statements": "&gt;80"
+  "check-coverage": true,
+  "extension": [".js"],
+  "exclude": [
+    "test"
+  ],
+  "statements": 90,
+  "branches": 90,
+  "functions": 90,
+  "lines": 90,
+  "reporter": ["lcov", "html", "text", "text-summary"],
+  "watermarks": {
+    "lines": [30, 99],
+    "functions": [30, 99],
+    "branches": [30, 99],
+    "statements": [30, 99]
+  }
 }

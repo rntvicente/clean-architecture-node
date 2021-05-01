@@ -5,7 +5,7 @@
   "reporter": "spec",
   "exit": true,
   "recursive": true,
-  "timeout": "2000",
+  "timeout": "20000",
   "ui": "bdd",
   "watch-files": ["src/**/*.js", "test/**/*.js"],
   "watch-ignore": []
