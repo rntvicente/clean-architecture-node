@@ -3,7 +3,7 @@ const chaiAsPromised = require('chai-as-promised')
 const sinon = require('sinon')
 chai.use(chaiAsPromised)
 
-const { MissingParamError } = require('../../../src/utils/errors')
+const { MissingParamError, InvalidParamError } = require('../../../src/utils/errors')
 
 class AuthUseCase {
   constructor (loadUserByEmailRepository) {
@@ -17,6 +17,14 @@ class AuthUseCase {
 
     if (!password) {
       throw new MissingParamError('password')
+    }
+
+    if (!this.loadUserByEmailRepository) {
+      throw new MissingParamError('loadUserByEmailRepository')
+    }
+
+    if (!this.loadUserByEmailRepository.load) {
+      throw new InvalidParamError('loadUserByEmailRepository')
     }
 
     await this.loadUserByEmailRepository.load(email)
@@ -41,27 +49,34 @@ const makeSut = () => {
 
 const sandbox = sinon.createSandbox()
 
-describe('Auth Usecase', () => {
+describe.only('Auth Usecase', () => {
   afterEach(() => sandbox.restore())
 
   it('should return throws when no email is provided', async () => {
     const { sut } = makeSut()
-
     return chai.assert.isRejected(sut.auth())
   })
 
   it('should return throws when no password is provided', async () => {
     const { sut } = makeSut()
-
     return chai.assert.isRejected(sut.auth('any_email@email.com'))
   })
 
   it('should call LoadUserByEmailRepository with email correct', async () => {
     const { sut, loadUserByEmailRepository } = makeSut()
-
     const loadUserByEmailRepositorySpy = sandbox.spy(loadUserByEmailRepository, 'load')
-    sut.auth('any_email@email.com', 'any_password')
 
+    sut.auth('any_email@email.com', 'any_password')
     chai.assert.isTrue(loadUserByEmailRepositorySpy.calledOnceWith('any_email@email.com'))
+  })
+
+  it('should throw when no LoadUserByEmailRepository provided', async () => {
+    const sut = new AuthUseCase()
+    chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
+  })
+
+  it('should throw when LoadUserByEmailRepository has no load method', async () => {
+    const sut = new AuthUseCase({})
+    chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
   })
 })
