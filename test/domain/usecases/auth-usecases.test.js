@@ -37,6 +37,16 @@ const makeLoadUserbyEmailRepository = () => {
   return loadUserByEmailRepository
 }
 
+const makeLoadUserbyEmailRepositoryWithError = () => {
+  class LoadUserByEmailRepository {
+    async load (email) {
+      throw new Error()
+    }
+  }
+
+  return new LoadUserByEmailRepository()
+}
+
 const makeTokenGenerator = () => {
   class TokenGenerator {
     async generate (userId) {
@@ -147,6 +157,19 @@ describe('Auth Usecase', () => {
       new AuthUseCase({ loadUserByEmailRepository, encrypter: invalid }),
       new AuthUseCase({ loadUserByEmailRepository, encrypter }),
       new AuthUseCase({ loadUserByEmailRepository, encrypter, tokenGenerator: invalid })
+    )
+
+    for (const sut of suts) {
+      chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
+    }
+  })
+
+  it('should throws when dependency throws', async () => {
+    const suts = [].concat(
+      new AuthUseCase({
+        loadUserByEmailRepository: makeLoadUserbyEmailRepositoryWithError()
+      })
+
     )
 
     for (const sut of suts) {
