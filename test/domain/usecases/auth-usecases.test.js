@@ -93,21 +93,6 @@ describe('Auth Usecase', () => {
     chai.assert.isTrue(spy.calledOnceWith('any_email@email.com'))
   })
 
-  it('should throws when no dependencies is provided', async () => {
-    const sut = new AuthUseCase()
-    chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
-  })
-
-  it('should throw when no LoadUserByEmailRepository provided', async () => {
-    const sut = new AuthUseCase({})
-    chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
-  })
-
-  it('should throw when LoadUserByEmailRepository has no load method', async () => {
-    const sut = new AuthUseCase({ loadUserByEmailRepository: {} })
-    chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
-  })
-
   it('should null when an invalid email is provided', async () => {
     const { sut, loadUserByEmailRepositorySpy } = makeSut()
     loadUserByEmailRepositorySpy.user = null
@@ -147,5 +132,25 @@ describe('Auth Usecase', () => {
 
     chai.assert.isOk(accessToken)
     chai.assert.deepEqual(accessToken, tokenGeneratorSpy.accessToken)
+  })
+
+  it('should throws when invalid dependencies are provided', async () => {
+    const invalid = null
+    const loadUserByEmailRepository = makeLoadUserbyEmailRepository()
+    const encrypter = makeEncrypter()
+
+    const suts = [].concat(
+      new AuthUseCase(),
+      new AuthUseCase({}),
+      new AuthUseCase({ loadUserByEmailRepository: invalid }),
+      new AuthUseCase({ loadUserByEmailRepository }),
+      new AuthUseCase({ loadUserByEmailRepository, encrypter: invalid }),
+      new AuthUseCase({ loadUserByEmailRepository, encrypter }),
+      new AuthUseCase({ loadUserByEmailRepository, encrypter, tokenGenerator: invalid })
+    )
+
+    for (const sut of suts) {
+      chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
+    }
   })
 })
