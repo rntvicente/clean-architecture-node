@@ -40,7 +40,7 @@ const makeLoadUserbyEmailRepository = () => {
 const makeLoadUserbyEmailRepositoryWithError = () => {
   class LoadUserByEmailRepository {
     async load (email) {
-      throw new Error()
+      return true
     }
   }
 
