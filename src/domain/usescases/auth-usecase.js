@@ -20,6 +20,7 @@ module.exports = class AuthUseCase {
     }
 
     if (!this.loadUserByEmailRepository.load) {
+      console.log('AQUI')
       throw new InvalidParamError('loadUserByEmailRepository')
     }
 
