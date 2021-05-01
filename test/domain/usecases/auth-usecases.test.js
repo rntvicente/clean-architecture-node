@@ -93,6 +93,11 @@ describe('Auth Usecase', () => {
     chai.assert.isTrue(spy.calledOnceWith('any_email@email.com'))
   })
 
+  it('should throws when no dependencies is provided', async () => {
+    const sut = new AuthUseCase()
+    chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
+  })
+
   it('should throw when no LoadUserByEmailRepository provided', async () => {
     const sut = new AuthUseCase({})
     chai.assert.isRejected(sut.auth('any_email@email.com', 'any_password'))
