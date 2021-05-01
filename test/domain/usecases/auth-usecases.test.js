@@ -5,9 +5,13 @@ const { MissingParamError } = require('../../../src/utils/errors')
 chai.use(chaiAsPromised)
 
 class AuthUseCase {
-  async auth (email) {
+  async auth (email, password) {
     if (!email) {
       throw new MissingParamError('email')
+    }
+
+    if (!password) {
+      throw new MissingParamError('password')
     }
   }
 }
@@ -17,5 +21,11 @@ describe('Auth Usecase', () => {
     const sut = new AuthUseCase()
 
     return chai.assert.isRejected(sut.auth())
+  })
+
+  it('should return throws when no password is provided', async () => {
+    const sut = new AuthUseCase()
+
+    return chai.assert.isRejected(sut.auth('any_email@email.com'))
   })
 })
