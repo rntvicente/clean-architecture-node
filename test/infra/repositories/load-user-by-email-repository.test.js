@@ -59,10 +59,17 @@ describe('LoadUserByEmail Repository', () => {
   it('should return an user when user found', async () => {
     const { userModel, sut } = makeSut()
 
-    await userModel.insertOne({ email: 'valid_email@email.com' })
+    const { ops: [fakeUser] } = await userModel.insertOne({
+      email: 'valid_email@email.com',
+      name: 'any_name',
+      age: 50,
+      password: 'hashed_password',
+      state: 'any_state'
+    })
+
     const user = await sut.load('valid_email@email.com')
 
     assert.isOk(user)
-    assert.strictEqual(user.email, 'valid_email@email.com')
+    assert.deepEqual(user, fakeUser)
   })
 })
