@@ -1,16 +1,14 @@
 const { MongoMemoryServer } = require('mongodb-memory-server')
-const { MongoClient } = require('mongodb')
 const { assert } = require('chai')
 
+const MongoHelper = require('../../../src/infra/helpers/mongo')
 const LoadUserByEmailRepository = require('../../../src/infra/repositories/load-user-by-email-repository')
 
-let con
-let db
 let mongoServer
-const opts = { useNewUrlParser: true, useUnifiedTopology: true }
+let database
 
 const makeSut = () => {
-  const userModel = db.collection('users')
+  const userModel = database.getCollection('users')
   const sut = new LoadUserByEmailRepository(userModel)
 
   return {
@@ -22,23 +20,21 @@ const makeSut = () => {
 describe('LoadUserByEmail Repository', () => {
   before(async () => {
     mongoServer = new MongoMemoryServer()
-    const mongoUri = await mongoServer.getUri()
-    con = await MongoClient.connect(mongoUri, opts)
+    const mongoUri = await mongoServer.getUri(true)
+    const databaseName = await mongoServer.getDbName()
 
-    db = con.db(await mongoServer.getDbName())
+    database = new MongoHelper()
+    await database.connect(mongoUri, databaseName)
   })
 
   after(async () => {
-    if (con) {
-      con.close()
-    }
-
-    if (mongoServer) {
-      await mongoServer.stop()
-    }
+    await database.disconnect()
+    await mongoServer.stop()
   })
 
-  afterEach(async () => db.collection('users').deleteMany())
+  afterEach(async () => {
+    await database.getCollection('users').deleteMany()
+  })
 
   it('should return null when no user found', async () => {
     const { sut } = makeSut()
