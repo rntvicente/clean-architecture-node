@@ -2,16 +2,7 @@ const { MongoMemoryServer } = require('mongodb-memory-server')
 const { MongoClient } = require('mongodb')
 const { assert } = require('chai')
 
-class LoadUserByEmailRepository {
-  constructor (userModel) {
-    this.userModel = userModel
-  }
-
-  async load (email) {
-    const user = this.userModel.findOne({ email })
-    return user
-  }
-}
+const LoadUserByEmailRepository = require('../../../src/infra/repositories/load-user-by-email-repository')
 
 let con
 let db
