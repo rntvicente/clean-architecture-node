@@ -1,11 +1,13 @@
 const { MongoMemoryServer } = require('mongodb-memory-server')
-const { assert } = require('chai')
+const chai = require('chai')
+const chaiAsPromised = require('chai-as-promised')
 
 const MongoHelper = require('../../../src/infra/helpers/mongo')
 const LoadUserByEmailRepository = require('../../../src/infra/repositories/load-user-by-email-repository')
 
 let mongoServer
 let database
+chai.use(chaiAsPromised)
 
 const makeSut = () => {
   const userModel = database.getCollection('users')
@@ -40,7 +42,7 @@ describe('LoadUserByEmail Repository', () => {
     const { sut } = makeSut()
     const user = await sut.load('invalid_email@email.com')
 
-    assert.isNull(user)
+    chai.assert.isNull(user)
   })
 
   it('should return an user when user found', async () => {
@@ -56,7 +58,19 @@ describe('LoadUserByEmail Repository', () => {
 
     const user = await sut.load('valid_email@email.com')
 
-    assert.isOk(user)
-    assert.deepEqual(user, fakeUser)
+    chai.assert.isOk(user)
+    chai.assert.deepEqual(user, fakeUser)
+  })
+
+  it('should return throw when no usermodel is provided', async () => {
+    const sut = new LoadUserByEmailRepository()
+
+    chai.assert.isRejected(sut.load('any_email@email.com'))
+  })
+
+  it('should return throw when no email is provided', async () => {
+    const { sut } = makeSut()
+
+    chai.assert.isRejected(sut.load())
   })
 })
