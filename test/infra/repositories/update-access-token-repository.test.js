@@ -1,6 +1,6 @@
-const { assert } = require('chai')
+const chai = require('chai')
+const chaiAsPromised = require('chai-as-promised')
 const { MongoMemoryServer } = require('mongodb-memory-server')
-const sinon = require('sinon')
 
 const UserFixture = require('../../commons/fixture/users-fixture')
 const MongoHelper = require('../../../src/infra/helpers/mongo-helper')
@@ -8,7 +8,7 @@ const UpdateAccessTokenRepository = require('../../../src/infra/repositories/upd
 
 let database
 let mongoServer
-const sandbox = sinon.createSandbox()
+chai.use(chaiAsPromised)
 
 const makeSut = async () => {
   const userModel = await database.getCollection('users')
@@ -36,7 +36,6 @@ describe('UpdateAccessToken Repository', () => {
   })
 
   afterEach(async () => {
-    sandbox.restore()
     const collection = await database.getCollection('users')
     collection.deleteMany()
   })
@@ -44,9 +43,24 @@ describe('UpdateAccessToken Repository', () => {
   it('should update the user with the given accessToken', async () => {
     const { sut, userModel } = await makeSut()
     const { ops: [fakeUser] } = await userModel.insertOne(UserFixture)
+
     await sut.update(fakeUser._id, 'valid_token')
     const user = await userModel.findOne({ _id: fakeUser._id })
 
-    assert.strictEqual(user.accessToken, 'valid_token')
+    chai.assert.strictEqual(user.accessToken, 'valid_token')
+  })
+
+  it('should return throw when no usermodel is provided', async () => {
+    const sut = new UpdateAccessTokenRepository()
+
+    chai.assert.isRejected(sut.update('valid_id', 'access_token'))
+  })
+
+  it('should return throw when no params are provided', async () => {
+    const { sut, userModel } = await makeSut()
+    const { ops: [fakeUser] } = await userModel.insertOne(UserFixture)
+
+    chai.assert.isRejected(sut.update())
+    chai.assert.isRejected(sut.update(fakeUser._id))
   })
 })
