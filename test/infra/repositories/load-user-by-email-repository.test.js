@@ -4,6 +4,7 @@ const chaiAsPromised = require('chai-as-promised')
 
 const MongoHelper = require('../../../src/infra/helpers/mongo-helper')
 const LoadUserByEmailRepository = require('../../../src/infra/repositories/load-user-by-email-repository')
+const UserFixture = require('../../commons/fixture/users-fixture')
 
 let mongoServer
 let database
@@ -49,13 +50,7 @@ describe('LoadUserByEmail Repository', () => {
   it('should return an user when user found', async () => {
     const { userModel, sut } = await makeSut()
 
-    const { ops: [fakeUser] } = await userModel.insertOne({
-      email: 'valid_email@email.com',
-      name: 'any_name',
-      age: 50,
-      password: 'hashed_password',
-      state: 'any_state'
-    })
+    const { ops: [fakeUser] } = await userModel.insertOne(UserFixture)
 
     const user = await sut.load('valid_email@email.com')
 
