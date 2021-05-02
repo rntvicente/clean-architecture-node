@@ -9,7 +9,7 @@ module.exports = class LoadUserByEmailRepository {
     if (!email) {
       throw MissingParamError('email')
     }
-    const user = this.userModel.findOne({ email })
+    const user = await this.userModel.findOne({ email })
     return user
   }
 }

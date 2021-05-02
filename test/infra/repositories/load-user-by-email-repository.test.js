@@ -2,15 +2,15 @@ const { MongoMemoryServer } = require('mongodb-memory-server')
 const chai = require('chai')
 const chaiAsPromised = require('chai-as-promised')
 
-const MongoHelper = require('../../../src/infra/helpers/mongo')
+const MongoHelper = require('../../../src/infra/helpers/mongo-helper')
 const LoadUserByEmailRepository = require('../../../src/infra/repositories/load-user-by-email-repository')
 
 let mongoServer
 let database
 chai.use(chaiAsPromised)
 
-const makeSut = () => {
-  const userModel = database.getCollection('users')
+const makeSut = async () => {
+  const userModel = await database.getCollection('users')
   const sut = new LoadUserByEmailRepository(userModel)
 
   return {
@@ -22,7 +22,7 @@ const makeSut = () => {
 describe('LoadUserByEmail Repository', () => {
   before(async () => {
     mongoServer = new MongoMemoryServer()
-    const mongoUri = await mongoServer.getUri(true)
+    const mongoUri = await mongoServer.getUri('mocha')
     const databaseName = await mongoServer.getDbName()
 
     database = new MongoHelper()
@@ -35,18 +35,19 @@ describe('LoadUserByEmail Repository', () => {
   })
 
   afterEach(async () => {
-    await database.getCollection('users').deleteMany()
+    const collection = await database.getCollection('users')
+    collection.deleteMany()
   })
 
   it('should return null when no user found', async () => {
-    const { sut } = makeSut()
+    const { sut } = await makeSut()
     const user = await sut.load('invalid_email@email.com')
 
     chai.assert.isNull(user)
   })
 
   it('should return an user when user found', async () => {
-    const { userModel, sut } = makeSut()
+    const { userModel, sut } = await makeSut()
 
     const { ops: [fakeUser] } = await userModel.insertOne({
       email: 'valid_email@email.com',
@@ -69,7 +70,7 @@ describe('LoadUserByEmail Repository', () => {
   })
 
   it('should return throw when no email is provided', async () => {
-    const { sut } = makeSut()
+    const { sut } = await makeSut()
 
     chai.assert.isRejected(sut.load())
   })

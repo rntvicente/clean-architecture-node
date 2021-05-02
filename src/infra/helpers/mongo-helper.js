@@ -15,10 +15,16 @@ module.exports = class MongoDb {
 
   async disconnect () {
     this.client.close()
+    this.client = null
     this.db = null
   }
 
-  getCollection (name) {
-    return this.db.collection(name)
+  async getCollection (name) {
+    if (!this.client?.isConnected()) {
+      await this.connect(this.mongoUri, this.databaseName)
+    }
+
+    const collection = await this.db.collection(name)
+    return collection
   }
 }
