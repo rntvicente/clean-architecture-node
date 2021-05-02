@@ -21,6 +21,8 @@ const makeSut = async () => {
 }
 
 describe('UpdateAccessToken Repository', () => {
+  let fakeUserId
+
   before(async () => {
     mongoServer = new MongoMemoryServer()
     const mongoUri = await mongoServer.getUri('mocha')
@@ -35,6 +37,12 @@ describe('UpdateAccessToken Repository', () => {
     await mongoServer.stop()
   })
 
+  beforeEach(async () => {
+    const userModel = await database.getCollection('users')
+    const { ops: [fakeUser] } = await userModel.insertOne(UserFixture)
+    fakeUserId = fakeUser._id
+  })
+
   afterEach(async () => {
     const collection = await database.getCollection('users')
     collection.deleteMany()
@@ -42,10 +50,8 @@ describe('UpdateAccessToken Repository', () => {
 
   it('should update the user with the given accessToken', async () => {
     const { sut, userModel } = await makeSut()
-    const { ops: [fakeUser] } = await userModel.insertOne(UserFixture)
-
-    await sut.update(fakeUser._id, 'valid_token')
-    const user = await userModel.findOne({ _id: fakeUser._id })
+    await sut.update(fakeUserId, 'valid_token')
+    const user = await userModel.findOne({ _id: fakeUserId })
 
     chai.assert.strictEqual(user.accessToken, 'valid_token')
   })
@@ -57,10 +63,9 @@ describe('UpdateAccessToken Repository', () => {
   })
 
   it('should return throw when no params are provided', async () => {
-    const { sut, userModel } = await makeSut()
-    const { ops: [fakeUser] } = await userModel.insertOne(UserFixture)
+    const { sut } = await makeSut()
 
     chai.assert.isRejected(sut.update())
-    chai.assert.isRejected(sut.update(fakeUser._id))
+    chai.assert.isRejected(sut.update(fakeUserId))
   })
 })
