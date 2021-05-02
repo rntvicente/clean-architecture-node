@@ -5,7 +5,7 @@ const { assert } = require('chai')
 const Encrypter = require('../../src/utils/helpers/token-generator')
 
 const makeSut = () => {
-  return new Encrypter()
+  return new Encrypter('secret')
 }
 
 const sandbox = sinon.createSandbox()
@@ -29,5 +29,14 @@ describe('Token Generator', () => {
     const isValid = await sut.generate('any_id')
 
     assert.strictEqual(isValid, 'valid_token')
+  })
+
+  it('should call JWT with correct values', async () => {
+    const signSpy = sandbox.spy(jwt, 'sign')
+
+    const sut = makeSut()
+    await sut.generate('any_id')
+
+    assert.isTrue(signSpy.calledOnceWith('any_id', sut.secret))
   })
 })

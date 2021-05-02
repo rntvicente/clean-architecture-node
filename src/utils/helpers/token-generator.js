@@ -1,8 +1,11 @@
 const jwt = require('jsonwebtoken')
 
 module.exports = class TokenGenerator {
+  constructor (secret) {
+    this.secret = secret
+  }
+
   async generate (id) {
-    this.id = id
-    return jwt.sign(id, 'secret')
+    return jwt.sign(id, this.secret)
   }
 }
