@@ -2,15 +2,17 @@ const { assert } = require('chai')
 const { MongoMemoryServer } = require('mongodb-memory-server')
 
 const MongoHelper = require('../../../src/infra/helpers/mongo-helper')
+const env = require('../../../src/main/config/env')
 
 describe('MongoDb Helper', () => {
   it('should reconnect when getCollection() is involked and client is disconnected', async () => {
     const mongoServer = new MongoMemoryServer()
-    const mongoUri = await mongoServer.getUri('mocha')
-    const databaseName = await mongoServer.getDbName()
+    const mongoUri = await mongoServer.getUri(env.DATABASE_NAME)
     const sut = new MongoHelper()
 
-    await sut.connect(mongoUri, databaseName)
+    console.log('mongoUri ', mongoUri)
+
+    await sut.connect(mongoUri)
     assert.isOk(sut.db)
 
     await sut.disconnect()
@@ -18,5 +20,7 @@ describe('MongoDb Helper', () => {
 
     await sut.getCollection('collection')
     assert.isOk(sut.db)
+
+    await sut.disconnect()
   })
 })

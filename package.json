@@ -10,8 +10,8 @@
     "coverage": "nyc report",
     "mocha": "mocha",
     "pretest": "npm run check && npm run depcheck && npm audit --production --audit-level=moderate",
-    "test": "mocha",
-    "test:ci": "nyc --reporter=lcov mocha && npm run coverage"
+    "test": "mocha --parallel",
+    "test:ci": "nyc --reporter=lcov mocha --parallel && npm run coverage"
   },
   "standard": {
     "env": [

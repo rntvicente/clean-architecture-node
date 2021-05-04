@@ -1,5 +1,4 @@
 {
-  "parallel": false,
   "bail": true,
   "extension": ["js"],
   "reporter": "spec",
