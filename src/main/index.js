@@ -1,7 +1,7 @@
 const MongoHelper = require('../infra/helpers/mongo-helper')
 const env = require('../main/config/env')
 
-MongoHelper.connect(env.MONGO_URI, env.DATABASE_NAME)
+MongoHelper.connect(env.MONGO_URI)
   .then(() => {
     const app = require('./config/app')
     console.log('-> MongoDB connect')

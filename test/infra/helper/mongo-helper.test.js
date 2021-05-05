@@ -7,9 +7,8 @@ describe('MongoDb Helper', () => {
   before(async () => {
     const mongoServer = new MongoMemoryServer()
     const mongoUri = await mongoServer.getUri('mocha')
-    const databaseName = await mongoServer.getDbName()
 
-    await sut.connect(mongoUri, databaseName)
+    await sut.connect(mongoUri)
   })
 
   after(async () => {

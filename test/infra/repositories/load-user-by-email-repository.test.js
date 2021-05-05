@@ -17,9 +17,8 @@ describe('LoadUserByEmail Repository', () => {
   before(async () => {
     mongoServer = new MongoMemoryServer()
     const mongoUri = await mongoServer.getUri('mocha')
-    const databaseName = await mongoServer.getDbName()
 
-    await MongoHelper.connect(mongoUri, databaseName)
+    await MongoHelper.connect(mongoUri)
   })
 
   after(async () => {
