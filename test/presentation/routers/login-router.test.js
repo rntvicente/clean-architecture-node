@@ -81,7 +81,7 @@ describe('Login Router', () => {
     const httpResponse = await sut.route(httpResquest)
 
     assert.strictEqual(httpResponse.statusCode, 400)
-    assert.deepInclude(httpResponse.body, new MissingParamError('email'))
+    assert.deepEqual(httpResponse.body.error, new MissingParamError('email').message)
   })
 
   it('should return 400 when no email invalid', async () => {
@@ -99,7 +99,7 @@ describe('Login Router', () => {
     const httpResponse = await sut.route(httpResquest)
 
     assert.strictEqual(httpResponse.statusCode, 400)
-    assert.deepInclude(httpResponse.body, new InvalidParamError('email'))
+    assert.deepEqual(httpResponse.body.error, new InvalidParamError('email').message)
   })
 
   it('should return 400 when no password is provided', async () => {
@@ -113,7 +113,7 @@ describe('Login Router', () => {
     const httpResponse = await sut.route(httpResquest)
 
     assert.strictEqual(httpResponse.statusCode, 400)
-    assert.deepInclude(httpResponse.body, new MissingParamError('password'))
+    assert.deepEqual(httpResponse.body.error, new MissingParamError('password').message)
   })
 
   it('should return 401 when invalid credentials are provided', async () => {
@@ -129,7 +129,7 @@ describe('Login Router', () => {
     const httpResponse = await sut.route(httpResquest)
 
     assert.strictEqual(httpResponse.statusCode, 401)
-    assert.deepInclude(httpResponse.body, new UnauthorizedError())
+    assert.deepEqual(httpResponse.body.error, new UnauthorizedError().message)
   })
 
   it('should return 500 when no httpRequest is provided', async () => {
@@ -137,7 +137,7 @@ describe('Login Router', () => {
 
     const httpResponse = await sut.route()
     assert.strictEqual(httpResponse.statusCode, 500)
-    assert.deepInclude(httpResponse.body, new ServerError())
+    assert.deepEqual(httpResponse.body.error, new ServerError().message)
   })
 
   it('should return 500 when httpRequest has no body', async () => {
@@ -146,7 +146,7 @@ describe('Login Router', () => {
 
     const httpResponse = await sut.route(httpResquest)
     assert.strictEqual(httpResponse.statusCode, 500)
-    assert.deepInclude(httpResponse.body, new ServerError())
+    assert.deepEqual(httpResponse.body.error, new ServerError().message)
   })
 
   it('should call AuthUseCase with correct param', async () => {
@@ -176,7 +176,7 @@ describe('Login Router', () => {
 
     const httpResponse = await sut.route(httpResquest)
     assert.strictEqual(httpResponse.statusCode, 500)
-    assert.deepInclude(httpResponse.body, new ServerError())
+    assert.deepEqual(httpResponse.body.error, new ServerError().message)
   })
 
   it('should return 500 when AuthUseCase has no auth method', async () => {
@@ -191,7 +191,7 @@ describe('Login Router', () => {
 
     const httpResponse = await sut.route(httpResquest)
     assert.strictEqual(httpResponse.statusCode, 500)
-    assert.deepInclude(httpResponse.body, new ServerError())
+    assert.deepEqual(httpResponse.body.error, new ServerError().message)
   })
 
   it('should return 500 when AuthUseCase throws', async () => {
@@ -207,7 +207,7 @@ describe('Login Router', () => {
 
     const httpResponse = await sut.route(httpResquest)
     assert.strictEqual(httpResponse.statusCode, 500)
-    assert.deepInclude(httpResponse.body, new ServerError())
+    assert.deepEqual(httpResponse.body.error, new ServerError().message)
   })
 
   it('should return 500 when EmailValidator is provided', async () => {
@@ -223,7 +223,7 @@ describe('Login Router', () => {
 
     const httpResponse = await sut.route(httpResquest)
     assert.strictEqual(httpResponse.statusCode, 500)
-    assert.deepInclude(httpResponse.body, new ServerError())
+    assert.deepEqual(httpResponse.body.error, new ServerError().message)
   })
 
   it('should return 500 when EmailValidator has no isValid method', async () => {
@@ -239,7 +239,7 @@ describe('Login Router', () => {
 
     const httpResponse = await sut.route(httpResquest)
     assert.strictEqual(httpResponse.statusCode, 500)
-    assert.deepInclude(httpResponse.body, new ServerError())
+    assert.deepEqual(httpResponse.body.error, new ServerError().message)
   })
 
   it('should return 500 when EmailValidator throws', async () => {
@@ -256,7 +256,7 @@ describe('Login Router', () => {
 
     const httpResponse = await sut.route(httpResquest)
     assert.strictEqual(httpResponse.statusCode, 500)
-    assert.deepInclude(httpResponse.body, new ServerError())
+    assert.deepEqual(httpResponse.body.error, new ServerError().message)
   })
 
   it('should call EmailValidator with correct email', async () => {
