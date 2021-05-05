@@ -40,7 +40,7 @@ describe('Token Generator', () => {
     const sut = makeSut()
     await sut.generate('any_id')
 
-    chai.assert.isTrue(signSpy.calledOnceWith('any_id', sut.secret))
+    chai.assert.isTrue(signSpy.calledOnceWith({ _id: 'any_id' }, sut.secret))
   })
 
   it('should return throw when no secret is provided', async () => {

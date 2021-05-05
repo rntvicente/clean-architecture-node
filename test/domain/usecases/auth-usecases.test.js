@@ -176,7 +176,7 @@ describe('Auth Usecase', () => {
     const { sut, loadUserByEmailRepositorySpy, tokenGeneratorSpy } = makeSut()
 
     await sut.auth('valid_email@email.com', 'valid_password')
-    chai.assert.deepEqual(tokenGeneratorSpy.userId, loadUserByEmailRepositorySpy.user.id)
+    chai.assert.deepEqual(tokenGeneratorSpy.userId, loadUserByEmailRepositorySpy.user._id)
   })
 
   it('should return an accessToken when correct credentials are provided', async () => {
@@ -194,7 +194,7 @@ describe('Auth Usecase', () => {
     await sut.auth('valid_email@email.com', 'valid_password')
 
     chai.assert.isOk(updateAccessTokenRepositorySpy)
-    chai.assert.deepEqual(updateAccessTokenRepositorySpy.userId, loadUserByEmailRepositorySpy.user.id)
+    chai.assert.deepEqual(updateAccessTokenRepositorySpy.userId, loadUserByEmailRepositorySpy.user._id)
     chai.assert.deepEqual(updateAccessTokenRepositorySpy.accessToken, tokenGeneratorSpy.accessToken)
   })
 
