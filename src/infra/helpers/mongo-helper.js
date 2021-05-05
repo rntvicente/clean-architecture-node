@@ -1,30 +1,28 @@
 const { MongoClient } = require('mongodb')
 
-module.exports = class MongoDb {
-  async connect (mongoUri, databaseName) {
-    this.mongoUri = mongoUri
-    this.databaseName = databaseName
-    const opts = {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
-    }
+const opts = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}
 
-    this.client = await MongoClient.connect(mongoUri, opts)
-    this.db = this.client.db(databaseName)
-  }
+module.exports = {
+  async connect (uri) {
+    this.uri = uri
+    this.client = await MongoClient.connect(uri, opts)
+    this.db = this.client.db()
+  },
 
   async disconnect () {
-    this.client.close()
+    await this.client.close()
     this.client = null
     this.db = null
-  }
+  },
 
   async getCollection (name) {
-    if (!this.client?.isConnected()) {
-      await this.connect(this.mongoUri, this.databaseName)
+    if (!this.client || !this.client.isConnected()) {
+      await this.connect(this.uri)
     }
 
-    const collection = await this.db.collection(name)
-    return collection
+    return this.db.collection(name)
   }
 }

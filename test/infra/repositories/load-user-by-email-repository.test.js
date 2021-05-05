@@ -7,17 +7,10 @@ const LoadUserByEmailRepository = require('../../../src/infra/repositories/load-
 const UserFixture = require('../../commons/fixture/users-fixture')
 
 let mongoServer
-let database
 chai.use(chaiAsPromised)
 
 const makeSut = async () => {
-  const userModel = await database.getCollection('users')
-  const sut = new LoadUserByEmailRepository(userModel)
-
-  return {
-    sut,
-    userModel
-  }
+  return new LoadUserByEmailRepository()
 }
 
 describe('LoadUserByEmail Repository', () => {
@@ -26,29 +19,29 @@ describe('LoadUserByEmail Repository', () => {
     const mongoUri = await mongoServer.getUri('mocha')
     const databaseName = await mongoServer.getDbName()
 
-    database = new MongoHelper()
-    await database.connect(mongoUri, databaseName)
+    await MongoHelper.connect(mongoUri, databaseName)
   })
 
   after(async () => {
-    await database.disconnect()
+    await MongoHelper.disconnect()
     await mongoServer.stop()
   })
 
   afterEach(async () => {
-    const collection = await database.getCollection('users')
-    collection.deleteMany()
+    const userModel = await MongoHelper.getCollection('users')
+    userModel.deleteMany()
   })
 
   it('should return null when no user found', async () => {
-    const { sut } = await makeSut()
+    const sut = await makeSut()
     const user = await sut.load('invalid_email@email.com')
 
     chai.assert.isNull(user)
   })
 
   it('should return an user when user found', async () => {
-    const { userModel, sut } = await makeSut()
+    const sut = await makeSut()
+    const userModel = await MongoHelper.getCollection('users')
 
     const { ops: [fakeUser] } = await userModel.insertOne(UserFixture)
 
@@ -58,15 +51,8 @@ describe('LoadUserByEmail Repository', () => {
     chai.assert.deepEqual(user, fakeUser)
   })
 
-  it('should return throw when no usermodel is provided', async () => {
-    const sut = new LoadUserByEmailRepository()
-
-    chai.assert.isRejected(sut.load('any_email@email.com'))
-  })
-
   it('should return throw when no email is provided', async () => {
-    const { sut } = await makeSut()
-
+    const sut = await makeSut()
     chai.assert.isRejected(sut.load())
   })
 })

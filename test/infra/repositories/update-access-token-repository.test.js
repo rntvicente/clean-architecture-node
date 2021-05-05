@@ -6,18 +6,11 @@ const UserFixture = require('../../commons/fixture/users-fixture')
 const MongoHelper = require('../../../src/infra/helpers/mongo-helper')
 const UpdateAccessTokenRepository = require('../../../src/infra/repositories/update-access-token-repository')
 
-let database
 let mongoServer
 chai.use(chaiAsPromised)
 
 const makeSut = async () => {
-  const userModel = await database.getCollection('users')
-  const sut = new UpdateAccessTokenRepository(userModel)
-
-  return {
-    userModel,
-    sut
-  }
+  return new UpdateAccessTokenRepository()
 }
 
 describe('UpdateAccessToken Repository', () => {
@@ -28,42 +21,36 @@ describe('UpdateAccessToken Repository', () => {
     const mongoUri = await mongoServer.getUri('mocha')
     const databaseName = await mongoServer.getDbName()
 
-    database = new MongoHelper()
-    await database.connect(mongoUri, databaseName)
+    await MongoHelper.connect(mongoUri, databaseName)
   })
 
   after(async () => {
-    await database.disconnect()
+    await MongoHelper.disconnect()
     await mongoServer.stop()
   })
 
   beforeEach(async () => {
-    const userModel = await database.getCollection('users')
+    const userModel = await MongoHelper.getCollection('users')
     const { ops: [fakeUser] } = await userModel.insertOne(UserFixture)
     fakeUserId = fakeUser._id
   })
 
   afterEach(async () => {
-    const collection = await database.getCollection('users')
-    collection.deleteMany()
+    const userModel = await MongoHelper.getCollection('users')
+    userModel.deleteMany()
   })
 
   it('should update the user with the given accessToken', async () => {
-    const { sut, userModel } = await makeSut()
+    const sut = await makeSut()
+    const userModel = await MongoHelper.getCollection('users')
     await sut.update(fakeUserId, 'valid_token')
-    const user = await userModel.findOne({ _id: fakeUserId })
 
+    const user = await userModel.findOne({ _id: fakeUserId })
     chai.assert.strictEqual(user.accessToken, 'valid_token')
   })
 
-  it('should return throw when no usermodel is provided', async () => {
-    const sut = new UpdateAccessTokenRepository()
-
-    chai.assert.isRejected(sut.update('valid_id', 'access_token'))
-  })
-
   it('should return throw when no params are provided', async () => {
-    const { sut } = await makeSut()
+    const sut = await makeSut()
 
     chai.assert.isRejected(sut.update())
     chai.assert.isRejected(sut.update(fakeUserId))
